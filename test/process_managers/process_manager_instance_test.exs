@@ -16,6 +16,7 @@ defmodule Commanded.ProcessManagers.ProcessManagerInstanceTest do
   # credo:disable-for-next-line
   alias Commanded.ProcessManagers.IdentityProcessManager.AnEvent
   alias Commanded.Helpers.Wait
+  alias Uniq.UUID
 
   setup :set_mox_global
   setup :verify_on_exit!
