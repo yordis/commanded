@@ -26,6 +26,7 @@ defmodule Commanded.EventStore.Adapters.InMemory do
   end
 
   alias Commanded.EventStore.Adapters.InMemory.{PersistentSubscription, State, Subscription}
+  alias Uniq.UUID
   alias Commanded.EventStore.{EventData, RecordedEvent, SnapshotData}
 
   def start_link(opts \\ []) do
