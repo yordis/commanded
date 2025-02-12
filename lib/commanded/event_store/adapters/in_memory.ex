@@ -30,8 +30,6 @@ defmodule Commanded.EventStore.Adapters.InMemory do
   alias Commanded.EventStore.{EventData, RecordedEvent, SnapshotData}
   alias Commanded.UUID
 
-  @supported_features MapSet.new([:event_id])
-
   def start_link(opts \\ []) do
     {start_opts, in_memory_opts} =
       Keyword.split(opts, [:debug, :name, :timeout, :spawn_opt, :hibernate_after])
@@ -64,11 +62,6 @@ defmodule Commanded.EventStore.Adapters.InMemory do
     ]
 
     {:ok, child_spec, %{name: event_store_name}}
-  end
-
-  @impl Commanded.EventStore.Adapter
-  def supported_features do
-    @supported_features
   end
 
   @impl Commanded.EventStore.Adapter

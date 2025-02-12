@@ -16,7 +16,6 @@ defmodule Commanded.EventStore.Adapter do
   @type subscriber :: pid
   @type source_uuid :: String.t()
   @type error :: term
-  @type features :: MapSet.t(atom())
 
   @doc """
   Return a child spec defining all processes required by the event store.
@@ -118,9 +117,4 @@ defmodule Commanded.EventStore.Adapter do
   """
   @callback delete_snapshot(adapter_meta, source_uuid) ::
               :ok | {:error, error}
-
-  @doc """
-  Return the map set of features supported by the event store adapter.
-  """
-  @callback supported_features() :: features()
 end

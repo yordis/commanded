@@ -30,10 +30,6 @@ defmodule Commanded.EventStore do
   @type application :: Application.t()
   @type config :: Keyword.t()
 
-  # List of all features required by Commanded to be supported by the event
-  # store adapter
-  @required_features [:event_id]
-
   @doc """
   Append one or more events to a stream atomically.
   """
@@ -288,37 +284,29 @@ defmodule Commanded.EventStore do
   end
 
   def verify_adapter_features!(adapter) do
-    supported_features = get_adapter_supported_features!(adapter)
-    unsupported_features = MapSet.difference(MapSet.new(@required_features), supported_features)
+    if adapter == Commanded.EventStore.Adapters.EventStore do
+      with {:ok, version_cl} <- :application.get_key(:commanded_eventstore_adapter, :vsn) do
+        [major, minor] =
+          version_cl
+          |> to_string()
+          |> String.split(".")
+          |> Enum.take(2)
+          |> Enum.map(&String.to_integer/1)
 
-    case MapSet.size(unsupported_features) do
-      0 ->
-        :ok
+        if major <= 1 && minor < 5 do
+          raise """
+          You are trying to use :commanded_eventstore_adapter 1.4.2 or lower,
+            but this version of commanded requires 1.5+.
 
-      _ ->
-        raise "Event store adapter #{inspect(adapter)} does not support #{inspect(unsupported_features)}"
+          Please update your version of the adapter in your mix deps to 1.5 or later:
+
+          {:commanded_eventstore_adapter, "~> 1.5.0"}
+          """
+        end
+      end
     end
-  end
 
-  @spec get_adapter_supported_features!(module) :: MapSet.t(atom())
-  defp get_adapter_supported_features!(adapter) do
-    try do
-      adapter.supported_features()
-    rescue
-      UndefinedFunctionError ->
-        raise """
-        Event store adapter #{inspect(adapter)} does not support supported_features/0.
-
-        Commanded v1.5+ requires that the adapter module implements the supported_features/0 function.
-        You may require to upgrade #{inspect(adapter)} to the latest version and make sure that
-        the adapter module implements the supported_features/0 function.
-
-        You are trying to use :commanded_eventstore_adapter 1.4.2 or lower, but this version of commanded requires 1.5+.
-        Please update your version of the adapter in your mix deps to 1.5 or later:
-
-        {:commanded_eventstore_adapter, "~> 1.5.0"}
-        """
-    end
+    :ok
   end
 
   # TODO convert to macro
